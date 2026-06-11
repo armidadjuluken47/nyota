@@ -29,14 +29,20 @@ export default function EligibilityForm({ onEligible }: EligibilityFormProps) {
       return;
     }
     
-    // Simple phone validation for Safaricom (07/01xxxxxxxx)
+    // Normalize phone number (strip whitespace, plus sign)
+    const normalizedPhone = formData.phoneNumber.replace(/[\s+]/g, '');
+    
+    // Simple phone validation for Safaricom (07xxxxxxxx or 01xxxxxxxx or 2547xxxxxxxx or 2541xxxxxxxx)
     const phoneRegex = /^(07|01)\d{8}$|^254(7|1)\d{8}$/;
-    if (!phoneRegex.test(formData.phoneNumber.replace('+', ''))) {
-      setError('Invalid Phone: Please enter a valid Safaricom number (07xxxxxxxx)');
+    if (!phoneRegex.test(normalizedPhone)) {
+      setError('Invalid Phone: Please enter a valid Safaricom number (e.g. 07xxxxxxxx or 01xxxxxxxx)');
       return;
     }
 
-    onEligible(formData);
+    onEligible({
+      ...formData,
+      phoneNumber: normalizedPhone,
+    });
   };
 
   return (
@@ -48,7 +54,7 @@ export default function EligibilityForm({ onEligible }: EligibilityFormProps) {
         <h2 className="text-xl font-bold text-gray-800 mb-1">Check Your Loan Eligibility</h2>
         <p className="text-gray-500 font-medium">Find out how much you qualify for instantly</p>
         <div className="mt-4 text-brand-red font-black text-2xl uppercase tracking-tighter">
-          Ksh. 1,500 – 60,000
+          Ksh. 15,000 – 150,000
         </div>
       </div>
 
@@ -73,10 +79,14 @@ export default function EligibilityForm({ onEligible }: EligibilityFormProps) {
             <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="tel"
-              placeholder="0712345678"
+              placeholder="e.g., 0712345678 or 0112345678"
+              maxLength={10}
               className="w-full pl-12 pr-4 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-brand-red transition-all outline-none text-gray-900 font-medium placeholder:text-gray-400"
               value={formData.phoneNumber}
-              onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                setFormData({ ...formData, phoneNumber: value });
+              }}
             />
           </div>
         </div>
@@ -147,7 +157,7 @@ export default function EligibilityForm({ onEligible }: EligibilityFormProps) {
                 </div>
               </div>
               <h3 className="text-2xl font-bold text-gray-800 mb-2">Invalid Phone</h3>
-              <p className="text-gray-500 mb-6 font-medium">Please enter a valid Safaricom number (07xxxxxxxx)</p>
+              <p className="text-gray-500 mb-6 font-medium">Please enter a valid Safaricom number starting with 07 or 01</p>
               <button
                 onClick={() => setError(null)}
                 className="w-24 py-2.5 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors"

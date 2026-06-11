@@ -21,11 +21,18 @@ export default function CheckoutModal({ option, phoneNumber, onClose, onSuccess 
   const [error, setError] = useState<string | null>(null);
 
   const handleProceed = async () => {
+    const normalizedPhone = phone.replace(/[\s+]/g, '');
+    const phoneRegex = /^(07|01)\d{8}$|^254(7|1)\d{8}$/;
+    if (!phoneRegex.test(normalizedPhone)) {
+      setError('Invalid Phone: Please enter a valid number starting with 07 or 01');
+      return;
+    }
+
     setLoading(true);
     setError(null);
     try {
       const response = await axios.post('/api/stk-push', {
-        phoneNumber: phone,
+        phoneNumber: normalizedPhone,
         amount: option.fee
       });
       console.log('STK Response:', response.data);
@@ -94,9 +101,13 @@ export default function CheckoutModal({ option, phoneNumber, onClose, onSuccess 
             <input
               type="text"
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              maxLength={10}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                setPhone(value);
+              }}
               className="w-full pl-12 pr-4 py-4 bg-brand-red/5 border-none rounded-2xl focus:ring-2 focus:ring-brand-red outline-none text-brand-red font-bold text-center"
-              placeholder="07xxxxxxxx"
+              placeholder="e.g., 07xxxxxxxx or 01xxxxxxxx"
             />
           </div>
 
