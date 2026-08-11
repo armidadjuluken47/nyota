@@ -13,7 +13,7 @@ interface LoanSelectionProps {
 }
 
 const LOAN_OPTIONS: LoanOption[] = [
-  { amount: 15000, fee: 100 },
+  { amount: 15000, fee: 200 },
   { amount: 22400, fee: 460 },
   { amount: 31500, fee: 530 },
   { amount: 45000, fee: 640 },
